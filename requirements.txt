@@ -1,0 +1,6 @@
+bleak==0.7.1
+pylgbst==1.2.0
+pyobjc-core==6.2.2
+pyobjc-framework-Cocoa==6.2.2
+pyobjc-framework-CoreBluetooth==6.2.2
+pyobjc-framework-libdispatch==6.2.2
