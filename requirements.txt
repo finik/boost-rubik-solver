@@ -1,6 +1,14 @@
 bleak==0.7.1
+cffi==1.14.2
+future==0.16.0
+install==1.3.3
+kociemba==1.2.1
+numpy==1.19.2
+opencv-python==4.4.0.42
+pycparser==2.20
 pylgbst==1.2.0
 pyobjc-core==6.2.2
 pyobjc-framework-Cocoa==6.2.2
 pyobjc-framework-CoreBluetooth==6.2.2
 pyobjc-framework-libdispatch==6.2.2
+rubik-solver==0.2.0

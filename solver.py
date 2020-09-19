@@ -1,91 +1,86 @@
-from pylgbst.hub import MoveHub, COLORS, COLOR_NONE, COLOR_RED
-from pylgbst import get_connection_bleak
+import color
 import time
-import logging
+from rubik_solver import utils
+from rubik_solver.CubieCube import DupedEdge
 
-    
-# logging.basicConfig(level=logging.WARN, format='%(relativeCreated)d\t%(levelname)s\t%(name)s\t%(message)s')
-hub = MoveHub(get_connection_bleak(hub_mac = "D8EED5BD-D9DA-43C5-97E1-4273F0368182"))
+MOVE_MAP = {
+    "R": ["l", "t", "tr", "r", "t", "l"],
+    "R'": ["l", "t", "tl", "l", "t", "l"]
 
+}
 
-QUARTER_TURN = 90
+class Solver:
+    def __init__(self, boost, webcam):
+        self.boost = boost
+        self.webcam = webcam
 
-RTURN_OVERSHOOT = 24
-LTURN_OVERSHOOT = 19
-
-GRIP_TURN = 90
-ROD_TURN = 70
-
-class Solver():
-    def __init__(self):
-        self.grip = None
+    def get_state(self):
+        self.boost.grip_down()
+        time.sleep(1)
+        top = self.webcam.scan()
         
-    def rotate_table_cw(self, overshoot = 0):
-        res = hub.motor_external.angled(QUARTER_TURN+overshoot, 0.1)
-        if overshoot:
-            res &= hub.motor_external.angled(-overshoot, 1)
-        return res
-            
-    def rotate_table_ccw(self, overshoot = 0):
-        res = hub.motor_external.angled(-(QUARTER_TURN+overshoot), 0.1)
-        if overshoot:
-            res &= hub.motor_external.angled(overshoot, 1)
-        return res
         
-    def grip_up(self):
-        if self.grip == True:
-            return True
-        res = hub.motor_B.angled(-GRIP_TURN, 0.2)
-        self.grip = True
-        return res
-        
-    def grip_down(self):
-        if self.grip == False:
-            return
-        res = hub.motor_B.angled(GRIP_TURN, 0.2)
-        self.grip = False
-        return res
-        
-    
-    def tilt(self):
-        self.grip_down()
-        res = hub.motor_A.angled(-ROD_TURN, 0.2)
-        res &= hub.motor_A.angled(ROD_TURN, 0.5)
-        self.grip_up()
-        return res
-        
-
-print("Avaliable commands:")
-print("r   - rotate bed clockwise")
-print("l   - rotate bed counter-clockwise")
-print("t   - tilt")
-print("gu  - grip up")
-print("gd  - grip down")
-print("q   - exit")
-
-solver = Solver()
-
-while True:
-    cmd = input("Enter your command: ")
-    res = None
-    if cmd == "r":
-        res = solver.rotate_table_cw(RTURN_OVERSHOOT)
-    elif cmd == "l":
-        res = solver.rotate_table_ccw(LTURN_OVERSHOOT)
-    elif cmd == "gu":
-        res = solver.grip_up()
-    elif cmd == "gd":
-        res = solver.grip_down()
-    elif cmd == "t":
-        res = solver.tilt()
-    elif cmd == "q":
-        hub.switch_off()
+        self.boost.tilt()
+        self.boost.grip_down()
         time.sleep(2)
-        break
-    else:
-        print("Unknown command")
+        front = self.webcam.scan()
+
+        self.boost.rotate(-1)
+        time.sleep(1)
+        left = self.webcam.scan()
         
-    if res:
-        print("Command successfull")
-    elif res == False:
-        print("Command failed!")
+        self.boost.rotate(-1)
+        time.sleep(1)
+        rear = self.webcam.scan()
+
+        self.boost.rotate(-1)
+        time.sleep(1)
+        right = self.webcam.scan()
+
+        self.boost.rotate(-1)
+        time.sleep(1)
+        self.boost.tilt()
+        time.sleep(2)
+        bottom = self.webcam.scan()
+
+        state = list(map(lambda x: {"avg": x}, top + left + front + right + rear + bottom))
+        print(state)
+        colors = color.get_colors(state)
+        print(colors)
+        self.webcam.update_state(colors)
+
+        return colors
+
+    def calc_moves(self, solution):
+        # Start with 3 titlts to get back to the original orienatation
+        moves = ['t', 't', 't']
+        return moves
+
+
+    def execute(self, solution):
+        pass
+
+    def solve(self):
+        state = self.get_state()
+        normalized_kociemba = patch_kociemba(state)
+        print(state, normalized_kociemba)
+        try:
+            solution = utils.solve(normalized_kociemba, 'Kociemba')
+            print(solution)
+            self.execute(solution)
+        except:
+            print("Error finding a solution, please retry")
+
+
+
+
+
+def patch_kociemba(state):
+    state = state.upper()
+    state = state.replace(state[4], 'y')
+    state = state.replace(state[13], 'b')
+    state = state.replace(state[22], 'r')
+    state = state.replace(state[31], 'g')
+    state = state.replace(state[40], 'o')
+    state = state.replace(state[49], 'w')
+    return state
