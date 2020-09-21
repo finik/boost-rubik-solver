@@ -8,6 +8,7 @@ webcam = Webcam()
 solver = Solver(boost, webcam)
 
 print("Avaliable commands:")
+print("s   - solve the cube")
 print("r   - rotate bed clockwise")
 print("l   - rotate bed counter-clockwise")
 print("t   - tilt")

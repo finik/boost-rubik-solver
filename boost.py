@@ -25,6 +25,7 @@ class Boost():
             else:
                 overshoot_value = LTURN_OVERSHOOT
 
+        print(direction*QUARTER_TURN + overshoot_value)
         res = self.hub.motor_external.angled(direction*QUARTER_TURN + overshoot_value, 0.1)
         if overshoot:
             res &= self.hub.motor_external.angled(-overshoot_value, 1)

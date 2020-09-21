@@ -12,7 +12,8 @@ import color
 REGION_SIZE = 32
 REGION_PAD = 192
 PREVIEW_SIZE = 64
-PREVIEW_CUBE_SIZE = PREVIEW_SIZE*3
+PREVIEW_PAD = 1
+PREVIEW_CUBE_SIZE = (PREVIEW_SIZE+PREVIEW_PAD)*3
 PREVIEW_X = 1020
 PREVIEW_Y = 220
 PREVIEW_SIDE_OFFSETS = [
@@ -46,8 +47,8 @@ class Webcam:
                 for x in range(3):
                     color = self.state[side*9 + y*3 + x]
                     cv2.rectangle(frame,
-                        (offsetx+x*PREVIEW_SIZE, offsety+y*PREVIEW_SIZE),
-                        (offsetx+x*PREVIEW_SIZE+PREVIEW_SIZE, offsety+y*PREVIEW_SIZE+PREVIEW_SIZE),
+                        (offsetx+x*(PREVIEW_SIZE+PREVIEW_PAD), offsety+y*(PREVIEW_SIZE+PREVIEW_PAD)),
+                        (offsetx+x*(PREVIEW_SIZE+PREVIEW_PAD)+PREVIEW_SIZE, offsety+y*(PREVIEW_SIZE+PREVIEW_PAD)+PREVIEW_SIZE),
                         name_to_bgr(color), -1)
 
     def update_window(self, frame):
